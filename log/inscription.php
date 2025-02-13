@@ -5,7 +5,7 @@ if(isset($_POST['inscrire']))
     $prenom=$_POST['prenom'];
     $nom=$_POST['nom'];
     $email=$_POST['email'];
-    $mot_pass=$_POST['pass'];
+    $mot_pass=password_hash($_POST['pass'],PASSWORD_DEFAULT) ;
     $ville_origine=$_POST['ville_origine'];
     $ville_domicile=$_POST['ville_domicille'];
     $telephone=$_POST['telephone'];

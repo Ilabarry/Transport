@@ -1,4 +1,62 @@
+<?php
+require "hfc/config.php";
+session_start(); 
+if(!isset($_SESSION["email"]))  
+ {  
+   header("location:log/connexion.php");   
+ }  
 
+
+
+if (isset($_POST['conducteur'])) {
+
+    
+if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+
+    $file= $_FILES['image'];
+    $typePermi = $_POST['typePermi'];
+    $typeTransport = $_POST['typeTransport'];
+    $information = $_POST['information'];
+    $email = $_SESSION['email'];
+    
+    $nomImg= basename($file['name']);
+    $stockImg= 'uploads/';
+
+    if (!is_dir($stockImg)) {
+        mkdir($stockImg,0755,true);
+    }
+
+    $deplaceImg = $stockImg . $nomImg;
+    if (move_uploaded_file($file['tmp_name'],$deplaceImg)) {
+        $query = $requete->prepare('SELECT id FROM users WHERE email = :email');
+        $query->bindParam(':email', $email, PDO::PARAM_STR);
+        $query->execute();
+        $user = $query->fetch(PDO::FETCH_ASSOC);
+    
+        if ($user) {
+            $userId = $user['id'];
+            $profil = $deplaceImg;
+    
+            $result = $requete->prepare('INSERT INTO conducteur(type_permi, nom_transport, information, profil, id_users) VALUES(:permis, :transport, :info, :profil, :id_users)');
+            $result->bindParam(':permis', $typePermi, PDO::PARAM_STR);
+            $result->bindParam(':transport', $typeTransport, PDO::PARAM_STR);
+            $result->bindParam(':info', $information, PDO::PARAM_STR);
+            $result->bindParam(':profil', $profil, PDO::PARAM_STR);
+            $result->bindParam(':id_users', $userId, PDO::PARAM_INT);
+            $result->execute();
+    
+            echo "<script>window.location.href='conducteur.php'</script>";
+        } else {
+            echo "User not found.";
+        }
+    }
+}
+    
+}
+
+
+
+?>
 
 <style>
     *{
@@ -96,7 +154,7 @@
 
                 
 
-                    <form action="<?php htmlspecialchars($_SERVER['PHP_SELF']) ?>" method="POST">
+                    <form action="<?php htmlspecialchars($_SERVER['PHP_SELF']) ?>" method="POST" enctype="multipart/form-data">
                         <div class="form-group">
                             <label for="exampleFormControlFile1">Ajouter une image professionnelle</label>
                             <input type="file" class="form-control-file" id="exampleFormControlFile1" name="image">

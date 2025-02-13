@@ -12,28 +12,24 @@ session_start();
           }
           else  
           {  
-               $query = "SELECT * FROM users WHERE email = :email AND mot_pass = :password";  
+               $query = "SELECT * FROM users WHERE email = :email";  
                $statement = $requete->prepare($query); 
-               $statement->execute(  
-                    array(  
-                         'email'     =>     $_POST["email"],  
-                         'password'     =>     $_POST["password"]  
-                    )  
-               );  
-            
-               $count = $statement->rowCount();  
-               if($count > 0)  
-               {  
+               $statement->execute(['email'     =>     $_POST["email"]]);
+               $user=$statement->fetch(PDO::FETCH_ASSOC)  ;
+                
+               if ($user && password_verify($_POST['password'],$user['mot_pass'])) {
                     $_SESSION["email"] = $_POST["email"]; 
-                    header("location: ../index.php");  
-               }  
-
-               else  
+                    $_SESSION["prenom"] = $_POST["prenom"]; 
+                    $_SESSION["nom"] = $_POST["nom"]; 
+                    $_SESSION["id_users"] = $user["id"];
+                    header("location: ../index.php"); 
+                    exit();
+               }else  
                {  
-                    $message = '<label>Données erronées</label>';  
-               }  
-          }  
-     }  
+                echo "<b class='text-danger b_form'>Identifiant ou Mot de passe incorrect</b>";
+                }
+           }  
+    }  
 
 ?> 
 

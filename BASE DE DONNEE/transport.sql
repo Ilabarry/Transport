@@ -19,7 +19,6 @@ CREATE TABLE reservation(
     date_time datetime,
     rithme varchar(100),
     moins_transport varchar(100),
-    conducteur varchar(100),
     id_users int,
     FOREIGN KEY (id_users) REFERENCES users(id),
     created_at timestamp DEFAULT CURRENT_TIMESTAMP
@@ -28,6 +27,7 @@ CREATE TABLE reservation(
 CREATE TABLE commentaire(
 	id int AUTO_INCREMENT NOT null PRIMARY KEY,
 	nom_conducteur varchar(100),
+	conf_conducteur varchar(100),
     commentaires varchar(1000),
     id_users int,
     FOREIGN KEY (id_users) REFERENCES users(id),

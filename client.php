@@ -15,10 +15,11 @@
         padding:5px 20px;
         border-radius: 0 50% 0 50%;
         color:yellow;
-        font-family: "Rubik Glitch", serif;
-        font-weight: 400;
+        font-family: "Roboto", serif;
+        font-optical-sizing: auto;
+        font-weight: <weight>;
         font-style: normal;
-       font-weight:900 ;
+        font-variation-settings:"wdth" 100;
     }
     .jumbotro h3{
         color:#808000;

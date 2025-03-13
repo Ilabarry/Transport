@@ -44,7 +44,7 @@ if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
             $result->bindParam(':profil', $profil, PDO::PARAM_STR);
             $result->bindParam(':id_users', $userId, PDO::PARAM_INT);
             $result->execute();
-    
+            echo "<script>alert('information aJouter avec succé ')</script>";  
             echo "<script>window.location.href='conducteur.php'</script>";
         } else {
             echo "User not found.";
@@ -65,19 +65,18 @@ if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
         box-sizing: border-box;
     }
     .acceuil{
-        background:rgba(0, 255,0, 0.19);
-       border-radius:10px;
-       height:300px;
+        background:rgba(0, 0,0, 0.29);
+       height:220px;
     }
     .jumbotro .display-4 {
-        /* background:#2ecc71 ; */
-        border-bottom: 3px solid red;
         padding:5px 20px;
         border-radius: 0 50% 0 50%;
-        color:yellow;
-        font-family: "Rubik Glitch", serif;
-        font-weight: 400;
+        color:#fff;
+        font-family: "Roboto", serif;
+        font-optical-sizing: auto;
+        font-weight: <weight>;
         font-style: normal;
+        font-variation-settings:"wdth" 100;
 
         margin-top:20px;
        /* color:#808000; */
@@ -114,10 +113,9 @@ if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
     }
     .title-general_h2{
         background:#2ecc71 ;
-        border-bottom: 3px solid red;
         padding:5px 20px;
         border-radius: 0 50% 0 50%;
-        color:yellow;
+        color:#fff;
         font-weight: 400;
         font-style: normal;
 
@@ -138,14 +136,14 @@ if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
 <body>
     <?php require_once "hfc/header.php";?>
         <img class="img_header" src="images/img_conduct.jpg" alt="" width="100%" height="300px">
-        <div class="jumbotro acceuil"><br><br><br><br><br><br><br><br>
-            <h1 class="display-4 text-center">formulaire d'informations</h1><br><br>
+        <div class="jumbotro acceuil"><br><br><br>
+            <h1 class="display-4 text-center">AJOUTER MES INFORMATIONS</h1>
           
         </div>
 
-        <div class="container"><br><br>
+        <div class="container"><br>
             <div>
-                <h2 class="title-general_h2 text-center">Obligatoire de remplir ce formulaire pour obtenir de clients</h2>
+                <h2 class="title-general_h2 text-center">Obligatoire de remplir ce formulaire</h2>
                 <b>NB: </b><p class="text-danger">Soyez prudant, faut pas dire ce que vous n'êtes pas oubien ce que vous ne povez pas faire merci !!! </p>
             </div>
             <div class="row">
@@ -162,6 +160,7 @@ if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
                         <div class="form-group">
                             <label for="exampleFormControlSelect1">Votre types de permis</label>
                             <select class="form-control" id="exampleFormControlSelect1" name="typePermi">
+                                <option value="">Selectioner le votre</option>
                                 <option value="Poid légère">Poid légère</option>
                                 <option value="Poid moyen">Poid moyen</option>
                                 <option value="Poid lourd">Poid lourd</option>
@@ -170,6 +169,7 @@ if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
                         <div class="form-group">
                             <label for="exampleFormControlSelect1">Type de transport</label>
                             <select class="form-control" id="exampleFormControlSelect1" name="typeTransport">
+                                <option value="">Selectioner le votre</option>
                                 <option value="Bus">Un Bus</option>
                                 <option value="Mini-bus">Un Mini-bus</option>
                                 <option value="7-Places">Un 7-Places</option>
@@ -184,7 +184,7 @@ if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
                         </div>
                             <div class="form-group row text-center h4">
                                 <!-- <div class="col-sm-10"> -->
-                                    <input type="submit" name="conducteur" id="" value="Envoyer mon commentaire">
+                                    <input type="submit" name="conducteur" id="" value="Ajouter mes informations">
                                 <!-- </div> -->
                             </div>
                     </form>

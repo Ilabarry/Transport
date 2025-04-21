@@ -1,246 +1,312 @@
+<?php require "hfc/config.php";
+require_once "hfc/header.php";
+?>
 
-<?php require "hfc/config.php"; ?>
-
-<style>
-    *{
-        padding: 0;
-        margin: 0;
-        box-sizing: border-box;
-    }
-    .acceuil{
-        background-image:url(images/image_acceuil.jpg);
-        height:400px;
-        background-repeat:no-repeat;
-        background-position:bottom;
-    }
-    .jumbotron .display-4 {
-       color:yellow;
-       font-weight:900 ;
-    }
-    .jumbotron h3{
-        color:yellow;
-    }
-    .bg{
-        background: rgba(60, 60, 60, 0.3);
-        z-index: 3;
-    }
-    .title_1{color:#2ecc71 ;text-transform:uppercase;}
-    .title_2{color:yellow;}
-    .title_3{color:red;}
-
-
-    .section-1{
-        position:absolute;
-        top: -160px;
-        left:0;
-        width:100%;
-        border:none;
-        z-index:3;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        /* width: cover; */
-        /* position:absolute; */
-        /* margin-top:-120px; */
-        /* margin-left:30px; */
-        box-shadow:3px 3px 10px rgba(60, 60, 60, 0.9) ;
-        border-radius:15px;
-    }
-    form input[type=submit]{
-        background-color:#2ecc71 ;
-        border:none;
-        border-radius:8px;
-        color:#fff;
-        font-size:24px;
-    }
-    span,h4{
-        color:yellow;
-    }
-    .container .title-general,.card-body .card-title{
-        background:#2ecc71 ;
-        /* border-bottom: 3px solid red; */
-        padding:5px 20px;
-        border-radius: 0 50% 0 50%;
-        color:#fff;
-        font-family: "Roboto", serif;
-        font-optical-sizing: auto;
-        font-weight: <weight>;
-        font-style: normal;
-        font-variation-settings:"wdth" 100;
-
-    }
-
-
-
-.section_2{
-        position:absolute;
-        top: 460px;
-        left:0;
-        width:100%;
-        border:none;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        margin-top:190px;
-        z-index: -3;
+    <style>
+        :root {
+            --primary-color: #2ecc71;
+            --secondary-color: #f1c40f;
+            --accent-color: #e74c3c;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+        }
         
-    }
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .hero-section {
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('images/image_acceuil.jpg');
+            height: 80vh;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+        
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .title-part-1 { color: var(--primary-color); }
+        .title-part-2 { color: var(--secondary-color); }
+        .title-part-3 { color: var(--accent-color); }
+        
+        .hero-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .about-section {
+            background-color: white;
+            padding: 5rem 0;
+            margin-top: -100px;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .section-title {
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 3rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-title:after {
+            content: '';
+            position: absolute;
+            width: 50%;
+            height: 4px;
+            background: var(--primary-color);
+            bottom: -10px;
+            left: 25%;
+            border-radius: 2px;
+        }
+        
+        .transport-section {
+            background-color: var(--light-color);
+            padding: 5rem 0;
+        }
+        
+        .transport-card {
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            height: 100%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .transport-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+        
+        .transport-card img {
+            height: 250px;
+            object-fit: cover;
+            transition: all 0.3s ease;
+        }
+        
+        .transport-card:hover img {
+            transform: scale(1.05);
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        .card-title {
+            color: var(--dark-color);
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .card-text {
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+        
+        .learn-more-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .learn-more-btn:hover {
+            background: var(--dark-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .air-travel-section {
+            padding: 5rem 0;
+            background: white;
+        }
+        .about-section ul li {
+            margin-bottom: 0.5rem;
+        }
 
-    .section_3{
-        background:#ecf0f1;
-        margin-top:200px
-    }
-    .card_trans{
-        background: #fff;
-        padding:10px;
-        box-shadow:gray 3px 4px 7px;
-    }
+        .about-section .lead {
+            font-weight: 600;
+            color: var(--dark-color);
+        }
 
-    iframe .video{
-        position:absolute;
-        top: 0;
-        left:0;
-        width:100%;
-        border:none;
-        z-index:3;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-    }
-    
-</style>
-<link rel="icon" type="image" href="senvoyagee.png">
-<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+        .about-section h5 {
+            color: var(--dark-color);
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .about-section {
+                margin-top: -50px;
+                padding: 3rem 0;
+            }
+        }
+    </style>
+</head>
 <body>
-    <?php require_once "hfc/header.php";?>
     
-    <div class="bg">
-        <div class="jumbotron acceuil">
-            <h1 class="display-4 text-center"><span class="title_1">sén</span><span class="title_2">voy</span><span class="title_3">age</span></h1>
-            <p class="lead text-center text-white ">Confiance de voyager partous au sénégal dans la sécurité avec séneTransport </p>
-            <hr class="my-2">
-            <h3 class="text-center">- NOTRE MAISON -</h3>    
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container" data-aos="fade-up">
+            <h1 class="hero-title">
+                <span class="title-part-1">Sén</span>
+                <span class="title-part-2">Trans</span>
+                <span class="title-part-3">port</span>
+            </h1>
+            <p class="hero-subtitle">Confiance de voyager partout au Sénégal dans la sécurité avec SénTransport</p>
         </div>
-    </div>
-
-    <div class="container" data-aos="fade-up" data-aos-anchor-placement="top-bottom" data-aos-delay="300">
-    <div style="height: 370px;">
-    <div class="section-1 bg-white p-4">
-            <div class="card-deck pt-2">
-                <iframe class="video" width="250" height="205" autoplay=1 src="https://www.youtube.com/embed/K1fDIaWdzfg?autoplay=1&mute=1&controls=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-                    <div class="card rounded-circle px-2">
-                    <div class="card-body">
-                        <h5 class="card-titl text-center">Utilisateurs</h5>
-                        <p class="card-text text-center" style="font-size: 40px; font-weight : bold"> <?php 
-                            $users= $requete->prepare( "SELECT count(*) FROM users");
-                            $users->execute();
-                            $count = $users->fetchColumn();
-                            echo $count;
-                        ?></p>
-                        <a href="#" class="btn btn-primary lg ml-4">Voir</a>
+    </section>
+    
+    <!-- About Section -->
+    <section class="about-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0" data-aos="fade-right">
+                <img src="images/img_propos.jpg" alt="À propos de SénTransport" height="800px" class="img-fluid rounded shadow">
+            </div>
+            <div class="col-lg-6" data-aos="fade-left">
+                <h2 class="section-title text-center text-lg-start">Qui sommes-nous ?</h2>
+                <p class="lead">SénTransport - Leader du transport terrestre et aérien au Sénégal depuis 2010</p>
+                
+                <p>Fondée en 2010, SénTransport s'est rapidement imposée comme la référence en matière de transport de personnes au Sénégal. Notre mission est de révolutionner l'expérience du voyage en offrant des solutions de mobilité sécurisées, confortables et accessibles à tous.</p>
+                
+                <!-- <p>Avec une flotte moderne de plus de 150 véhicules (bus, minibus et voitures 7 places) et des partenariats avec les principales compagnies aériennes régionales, nous couvrons l'ensemble du territoire sénégalais et les principales destinations en Afrique de l'Ouest.</p> -->
+                
+                <h5 class="mt-4">Nos engagements :</h5>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-check-circle text-primary me-2"></i> Sécurité renforcée avec des véhicules contrôlés quotidiennement</li>
+                    <li><i class="fas fa-check-circle text-primary me-2"></i> Confort optimal avec des équipements haut de gamme</li>
+                    <li><i class="fas fa-check-circle text-primary me-2"></i> Ponctualité garantie avec 98% de nos trajets à l'heure</li>
+                    <li><i class="fas fa-check-circle text-primary me-2"></i> Prix transparents sans surprise</li>
+                </ul>
+                
+                <p>Chaque année, ce sont plus de 500 000 voyageurs qui nous font confiance pour leurs déplacements professionnels, familiaux ou touristiques. Notre équipe de 200 collaborateurs passionnés est à votre service 24h/24 et 7j/7.</p>
+                
+                <div class="d-flex align-items-center mt-4">
+                    <div class="me-3">
+                        <i class="fas fa-phone-alt fa-2x text-primary"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0">Service client</h6>
+                        <p class="mb-0">+221 33 800 00 00 (24h/24)</p>
                     </div>
                 </div>
-                <div class="card rounded-circle px-3">
-                <div class="card-body">
-                        <h5 class="card-titl text-center">Clients</h5>
-                        <p class="card-text text-center" style="font-size: 40px; font-weight : bold "> <?php 
-                            $users= $requete->prepare( "SELECT count(*) FROM users where role='client' ");
-                            $users->execute();
-                            $count = $users->fetchColumn();
-                            echo $count;
-                        ?></p>
-                        <a href="#" class="btn btn-primary lg ml-4">Voir</a>
-                    </div>
-                </div>
-                <div class="card rounded-circle px-3">
-                <div class="card-body">
-                        <h5 class="card-titl text-center">Conducteurs</h5>
-                        <p class="card-text text-center" style="font-size: 40px; font-weight : bold"> <?php 
-                            $users= $requete->prepare( "SELECT count(*) FROM users where role='conducteur' ");
-                            $users->execute();
-                            $count = $users->fetchColumn();
-                            echo $count;
-                        ?></p>
-                        <a href="#" class="btn btn-primary lg ml-4">Voir</a>
-                    </div>
-                </div>
-                <iframe width="250" height="205" src="https://www.youtube.com/embed/AqhJmeDK-aQ?autoplay=1&mute=1&controls=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay=1; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                
+                <p class="text-muted mt-3">Dernière mise à jour : <?php echo date('d/m/Y'); ?></p>
             </div>
         </div>
     </div>
-    </div>
-
-    <div class="section_2">
+</section>
+    
+    <!-- Transport Section -->
+    <section class="transport-section">
         <div class="container">
-            <div class="card mb-3">
-                <div class="row no-gutters" data-aos="fade-up" data-aos-anchor-placement="top-bottom" data-aos-delay="300">
-                    <div class="col-md-5">
-                        <img src="images/image_propos.jpg" alt="..." width="355px" heigth="200px" class="img-fluide">
-                    </div>
-                    <div class="col-md-7">
-                        <div class="card-body">
-                            <h5 class="card-titl text-centere text-center text-uppercase p-3 h3">QUI SOMMES NOUS ?</h5>
-                            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                            <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+            <h2 class="section-title text-center">Nos solutions de transport</h2>
+            
+            <div class="row">
+                <!-- Bus Card -->
+                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <a href="T_bus.php" class="text-decoration-none">
+                        <div class="transport-card">
+                            <img src="images/bus.jpg" class="card-img-top" alt="Bus">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Transport en Bus</h5>
+                                <p class="card-text">Découvrez nos bus confortables pour vos voyages en groupe ou longues distances.</p>
+                                <button class="learn-more-btn"><a href="T_bus.php" class="text-decoration-none">Voir les options</a></button>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                
+                <!-- Mini Bus Card -->
+                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="200">
+                    <a href="T_miniBus.php" class="text-decoration-none">
+                        <div class="transport-card">
+                            <img src="images/mini-bus.jpg" class="card-img-top" alt="Mini Bus">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Mini Bus</h5>
+                                <p class="card-text">Solution idéale pour les petits groupes avec un excellent rapport qualité-prix.</p>
+                                <button class="learn-more-btn"><a href="T_miniBus.php" class="text-decoration-none">Découvrir</a></button>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                
+                <!-- 7 Places Card -->
+                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="300">
+                    <a href="T_7place.php" class="text-decoration-none">
+                        <div class="transport-card">
+                            <img src="images/7place.jpg" class="card-img-top" alt="7 Places">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Voitures 7 Places</h5>
+                                <p class="card-text">Parfait pour les familles ou petits groupes souhaitant un transport privé.</p>
+                                <button class="learn-more-btn"><a href="T_7place.php" class="text-decoration-none">En savoir plus</a></button>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Air Travel Section -->
+    <section class="air-travel-section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8" data-aos="fade-up">
+                    <div class="transport-card">
+                        <img src="images/avion.jpg" class="card-img-top" alt="Voyage aérien">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Solutions de voyage aérien</h5>
+                            <p class="card-text">Nous proposons également des solutions complètes pour vos déplacements aériens à travers le Sénégal et l'Afrique de l'Ouest.</p>
+                            <a href="client.php" class="learn-more-btn">Consulter les tarifs</a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-
-
-    <div class="container section_3 pb-5" data-aos="fade-up" data-aos-anchor-placement="top-bottom" data-aos-delay="300">
-        <h2 class="title-general text-center">nos différents moyens de transport</h2>
-        <div class="card-deck mt-5">
-            <div class="card card_trans" data-aos="fade-up" data-aos-anchor-placement="top-bottom" data-aos-delay="300">
-                <img src="images/bus.jpg" class="card-img-top" alt="..." height="300px">
-                <div class="card-body">
-                <h5 class="card-titl text-centere text-center">les bus</h5>
-                <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional.</p>
-                <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
-                </div>
-            </div>
-            <div class="card card_trans" data-aos="fade-up" data-aos-anchor-placement="top-bottom" data-aos-delay="300">
-                <img src="images/mini-bus.jpg" class="card-img-top" alt="..." height="300px">
-                <div class="card-body">
-                <h5 class="card-titl text-centere text-center">les mini bus</h5>
-                <p class="card-text">This card has supporting text below as a natural lead-in to additional content.</p>
-                <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
-                </div>
-            </div>
-            <div class="card card_trans" data-aos="fade-up" data-aos-anchor-placement="top-bottom" data-aos-delay="300">
-                <img src="images/7place.jpg" class="card-img-top" alt="..." height="300px">
-                <div class="card-body">
-                <h5 class="card-titl text-centere text-center">les 7 places</h5>
-                <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional.</p>
-                <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-    <div class="container mt-5">
-        <div class="card mt-3" data-aos="fade-up" data-aos-anchor-placement="top-bottom" data-aos-delay="300">
-            <img src="images/avion.jpg" class="card-img-top" alt="..." height="300px">
-            <div class="card-body">
-                <h5 class="card-titl text-centere text-center">voyage aérienne</h5>
-                <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
-            </div>
-        </div>
-            
-    </div>
-
-<br>
+    </section>
     
-
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-
-    <?php require_once "hfc/footer.php";?>
+    <script>
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true
+        });
+    </script>
+    
+    <?php require_once "hfc/footer.php"; ?>
 </body>
-
-<script>
-  AOS.init();
-</script>
+</html>

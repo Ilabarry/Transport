@@ -13,5 +13,6 @@
     }  
     catch(PDOException $error)  
     {  
-         $message = $error->getMessage();  
+     $message = "Erreur de connexion à la base de données : " . $error->getMessage();
+     die($message);  
     }  

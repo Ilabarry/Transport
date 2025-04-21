@@ -1,30 +1,50 @@
+
 <?php
 require "hfc/config.php";
+require_once "hfc/header.php";
+require 'vendor/autoload.php';
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
-// j'ai charger le PHPMailer
-    require 'vendor/autoload.php';
-    use PHPMailer\PHPMailer\PHPMailer;
-    use PHPMailer\PHPMailer\Exception;
+if (!isset($_SESSION['id_users'])) {
+    header("Location: log/connexion.php");
+    exit(); 
+}
 
-session_start();
 if (isset($_POST['reservation'])) {
-
+    // Récupération et sécurisation des données
+    $depart = htmlspecialchars($_POST['depart']);
+    $arriver = htmlspecialchars($_POST['arriver']);
+    $date_time = htmlspecialchars($_POST['dateTime']);
+    $passengers = intval($_POST['passengers']);
+    $transport_type = htmlspecialchars($_POST['transport_type']);
+    $additional_info = htmlspecialchars($_POST['additional_info'] ?? '');
+    $email = htmlspecialchars($_SESSION['email'] ?? '');
     
+    // Calcul du prix estimé (vous pouvez adapter cette logique selon vos besoins)
+    $prix_estime = 0;
+    switch($transport_type) {
+        case 'Bus':
+            $prix_estime = 5000 * ceil($passengers / 20); // Exemple: 5000 FCFA pour 20 passagers
+            break;
+        case 'Mini-bus':
+            $prix_estime = 3500 * ceil($passengers / 10);
+            break;
+        case '7-places':
+            $prix_estime = 6000 * ceil($passengers / 7);
+            break;
+    }
 
-    $depart = htmlspecialchars($_POST['depart']) ;
-    $arriver = htmlspecialchars($_POST['arriver']) ;
-    $date_time = htmlspecialchars($_POST['dateTime']) ;
-    $rithme = htmlspecialchars($_POST['rithme'] ?? '') ;
-    $moinsPransport = is_array($_POST['moinsPransport'] ?? [])? implode(',', $_POST['moinsPransport']): '';
-    $email = htmlspecialchars($_SESSION['email']) ;
-
-    // je confirme PHPMailer
-
+    // Initialisation de PHPMailer
     $mail = new PHPMailer(true);
-    
-    
 
-    
+    try {
+        // Vérification si l'utilisateur est connecté
+        if(empty($email)) {
+            header("Location: log/connexion.php?error=Merci de vous connecter avant de faire votre réservation");
+            exit();
+        }
+
         $query = $requete->prepare('SELECT id, prenom, nom FROM users WHERE email = :email');
         $query->bindParam(':email', $email, PDO::PARAM_STR);
         $query->execute();
@@ -35,141 +55,338 @@ if (isset($_POST['reservation'])) {
             $prenom = $user['prenom'];
             $nom = $user['nom'];
     
-            $result = $requete->prepare('INSERT INTO reservation(depart, arriver, date_time, rithme, moins_transport, id_users) VALUES(:dep, :arv, :dt, :rithme, :trans, :id_users)');
+            // Insertion de la réservation
+            $result = $requete->prepare('INSERT INTO reservation(depart, arriver, date_time, passengers, transport_type, additional_info, prix_estime, id_users) 
+                                      VALUES(:dep, :arv, :dt, :pass, :trans, :info, :prix, :id_users)');
             $result->bindParam(':dep', $depart, PDO::PARAM_STR);
             $result->bindParam(':arv', $arriver, PDO::PARAM_STR);
             $result->bindParam(':dt', $date_time, PDO::PARAM_STR);
-            $result->bindParam(':rithme', $rithme, PDO::PARAM_STR);
-            $result->bindParam(':trans', $moinsPransport, PDO::PARAM_STR);
+            $result->bindParam(':pass', $passengers, PDO::PARAM_INT);
+            $result->bindParam(':trans', $transport_type, PDO::PARAM_STR);
+            $result->bindParam(':info', $additional_info, PDO::PARAM_STR);
+            $result->bindParam(':prix', $prix_estime, PDO::PARAM_STR);
             $result->bindParam(':id_users', $userId, PDO::PARAM_INT);
             $result->execute();
             
             $reservationId = $requete->lastInsertId();
             
-            $result = $requete->prepare('SELECT  reservation.*,users.prenom,users.nom FROM reservation INNER JOIN users ON reservation.id_users = users.id where reservation.id = :reservationId ;');
+            // Récupération des détails de la réservation
+            $result = $requete->prepare('SELECT reservation.*, users.prenom, users.nom 
+                                       FROM reservation 
+                                       INNER JOIN users ON reservation.id_users = users.id 
+                                       WHERE reservation.id = :reservationId');
             $result->bindParam(':reservationId', $reservationId, PDO::PARAM_INT);
             $result->execute();
-            $monReservation = $result->fetchAll(PDO::FETCH_ASSOC);  
+            $monReservation = $result->fetch(PDO::FETCH_ASSOC);  
 
-            if ($monReservation){ 
-                $rsevationdata = $monReservation[0] ?>
+            if ($monReservation) { 
+?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <title>Confirmation de réservation</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image" href="senvoyagee.png">
+    
+    <style>
+                * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .confirmation-header {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        .back-btn {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            color: white;
+            font-size: 24px;
+            z-index: 10;
+        }
+        .confirmation-title {
+            font-weight: 700;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        }
+        .confirmation-container {
+            max-width: 800px;
+            margin: 0 auto 50px;
+            padding: 0 20px;
+        }
+        .confirmation-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .confirmation-icon {
+            font-size: 60px;
+            color: #2ecc71;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .confirmation-message {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 18px;
+        }
+        .reservation-details {
+            margin: 25px 0;
+        }
+        .detail-item {
+            display: flex;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #2c3e50;
+            min-width: 180px;
+        }
+        .detail-icon {
+            color: #2ecc71;
+            margin-right: 10px;
+            width: 20px;
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        .btn-modify {
+            background: #f39c12;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 30px;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+        }
+        .btn-modify:hover {
+            background: #e67e22;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            color: white;
+        }
+        .email-notice {
+            text-align: center;
+            margin-top: 20px;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        @media (max-width: 768px) {
+            .confirmation-header {
+                height: 180px;
+            }
+            .detail-item {
+                flex-direction: column;
+            }
+            .detail-label {
+                min-width: auto;
+                margin-bottom: 5px;
+            }
+        }
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .confirmation-header {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        /* ... (gardez le reste de votre CSS existant) ... */
+    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    
+    <div class="confirmation-header">
+        <a href="index.php" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <div>
+            <h1 class="confirmation-title">RÉSERVATION CONFIRMÉE</h1>
+            <p class="lead">Merci d'avoir choisi notre service</p>
+        </div>
+    </div>
 
-                <!doctype html>
-                <html lang="en">
-                  <head>
-                    <title>resulta reservation</title>
-                    <!-- Required meta tags -->
-                    <meta charset="utf-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <div class="confirmation-container">
+        <div class="confirmation-card">
+            <div class="confirmation-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            
+            <div class="confirmation-message">
+                <h3>Votre réservation a été enregistrée avec succès</h3>
+                <p>Veuillez vérifier les détails ci-dessous</p>
+            </div>
+            
+            <div class="reservation-details">
+                <div class="detail-item">
+                    <span class="detail-icon"><i class="fas fa-user"></i></span>
+                    <span class="detail-label">Passager :</span>
+                    <span><?php echo htmlspecialchars($monReservation['prenom']) . ' ' . htmlspecialchars($monReservation['nom']); ?></span>
+                </div>
                 
-                    <!-- Bootstrap CSS -->
-                    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-                  
-                  <style>
-                        .container{
-                          position:absolute;
-                          top:80px;
-                          left: 0;
-                          /* width:100%; */
-                          border:none;
-                          z-index:1;
-                          display:flex;
-                          align-items:center;
-                          justify-content:center;    
-      
-      
-                        }
-                        .container_2{
-                          background-color: #eee;
-                          height:480px;
-                          border-radius:10px;
-                        }
-                        header
-                            {
-                            text-align: center;
-                            background-color: #EEE;
-                            margin-bottom: 20px;
-                            padding: 10px;
-                       }
+                <div class="detail-item">
+                    <span class="detail-icon"><i class="fas fa-map-marker-alt"></i></span>
+                    <span class="detail-label">Départ :</span>
+                    <span><?php echo htmlspecialchars($monReservation['depart']); ?></span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-icon"><i class="fas fa-map-marker-alt"></i></span>
+                    <span class="detail-label">Destination :</span>
+                    <span><?php echo htmlspecialchars($monReservation['arriver']); ?></span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-icon"><i class="fas fa-calendar-alt"></i></span>
+                    <span class="detail-label">Date et heure :</span>
+                    <span><?php echo date('d/m/Y H:i', strtotime($monReservation['date_time'])); ?></span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-icon"><i class="fas fa-users"></i></span>
+                    <span class="detail-label">Nombre de passagers :</span>
+                    <span><?php echo htmlspecialchars($monReservation['passengers']); ?></span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-icon"><i class="fas fa-bus"></i></span>
+                    <span class="detail-label">Type de transport :</span>
+                    <span><?php echo htmlspecialchars($monReservation['transport_type']); ?></span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-icon"><i class="fas fa-money-bill-wave"></i></span>
+                    <span class="detail-label">Prix estimé :</span>
+                    <span><?php echo number_format($monReservation['prix_estime'], 0, ',', ' '); ?> FCFA</span>
+                </div>
+                
+                <?php if(!empty($monReservation['additional_info'])): ?>
+                <div class="detail-item">
+                    <span class="detail-icon"><i class="fas fa-info-circle"></i></span>
+                    <span class="detail-label">Informations supplémentaires :</span>
+                    <span><?php echo htmlspecialchars($monReservation['additional_info']); ?></span>
+                </div>
+                <?php endif; ?>
+            </div>
+            
+            <div class="action-buttons">
+                <a href="update_reservation.php?id=<?php echo $monReservation['id']; ?>" class="btn-modify">
+                    <i class="fas fa-edit mr-2"></i> Modifier la réservation
+                </a>
+            </div>
+            
+            <div class="email-notice">
+                <i class="fas fa-envelope"></i> Un email de confirmation vous a été envoyé à <?php echo htmlspecialchars($email); ?>
+            </div>
+        </div>
+    </div>
 
-                  </style>
-                  </head>
-                  <body>
-                  <header class="text-white bg-success h4"> <a href="index.php" class="text-white bg-success px-2"><i class="fa fa-arrow-left" aria-hidden="true"></i></a> &nbsp;&nbsp;&nbsp; Mercie de verifier vos informations afin de ne pas confirmer vontre reservation avec des érreurs</header>
-                      
+    <?php require_once "hfc/footer.php"; ?>
 
-                    <div class="container">
-                      <div class="ml-5 px-5 py-2 container_2">
-                          
-                        <br>
-                          <h3 class="text-success">Detail de la reservation :</h3>
-                          <p><?php echo 'Prenom&Nom : '. htmlspecialchars($rsevationdata['prenom']) . ' ' . htmlspecialchars($rsevationdata['nom']); ?></p>
-                          <p><?php echo 'Départ : '. htmlspecialchars($rsevationdata['depart']); ?></p>
-                          <p><?php echo 'Diréction : '. htmlspecialchars($rsevationdata['arriver']); ?></p>
-                          <p><?php echo 'Date&heur : '. htmlspecialchars($rsevationdata['date_time']); ?></p>
-                          <p><?php echo 'Votre rithme : '. htmlspecialchars($rsevationdata['rithme']); ?></p>
-                          <p><?php echo 'Moins de transport : '. htmlspecialchars($rsevationdata['moins_transport']); ?></p>
-                        <p>Merci d'avoir utilisé notre service .</p>
-                        <small>Un e-mail de confirmation vous a été envoyé.</small><br><br>
-                        <p class="text-center bg-white py-2"><a href="update_reservation.php?id=<?php echo $rsevationdata['id'] ; ?>"><b class="text-success">Modifier</b></a></p>
-                      </div>
-                    </div>
-
-
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Animation pour l'apparition de la carte
+        document.addEventListener('DOMContentLoaded', function() {
+            const card = document.querySelector('.confirmation-card');
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'all 0.5s ease-out';
+            
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 200);
+        });
+    </script>
+</body>
+</html>
 <?php
-// envoie de email
- 
-      try {
-        $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com';
-        $mail->SMTPAuth = true;
-        $mail->Username = "barryila20@gmail.com";
-        $mail->Password = "lkkz fltb wtvo folr";
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port = 587;
+                // Envoi de l'email de confirmation
+                try {
+                    $mail->isSMTP();
+                    $mail->Host = 'smtp.gmail.com';
+                    $mail->SMTPAuth = true;
+                    $mail->Username = "barryila20@gmail.com";
+                    $mail->Password = "alnd yzka ehpw lozi";
+                    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                    $mail->Port = 587;
 
-        $mail->setFrom('barryila20@gmail.com','service de Transport') ;
-        $mail->addAddress($email);
+                    $mail->setFrom('barryila20@gmail.com', 'Service de Transport');
+                    $mail->addAddress($email);
 
-        $mail->isHTML(false);
-        $mail->Subject = 'Confirmation de reservation';
-        $mail->Body = "Bonjour $prenom $nom \n\n";
-        $mail->Body .= "Votre reservation a été enregistrée avec succés. \n";
-        $mail->Body .= "Detail de la reservation :\n";
-        $mail->Body .= "- Départ : $depart \n";
-        $mail->Body .= "- Arriver : $arriver \n";
-        $mail->Body .= "- Date et Heur : $date_time \n";
-        $mail->Body .= "- Rithme : $rithme \n";
-        $mail->Body .= "- Modes de transport : $moinsPransport \n\n";
-        $mail->Body .= "Merci d'avoir utilisé notre service .";
+                    $mail->isHTML(true);
+                    $mail->Subject = 'Confirmation de réservation';
+                    $mail->Body = "
+                        <h2>Bonjour $prenom $nom</h2>
+                        <p>Votre réservation a été enregistrée avec succès.</p>
+                        <h3>Détails de la réservation :</h3>
+                        <ul>
+                            <li><strong>Départ :</strong> $depart</li>
+                            <li><strong>Destination :</strong> $arriver</li>
+                            <li><strong>Date et heure :</strong> ".date('d/m/Y H:i', strtotime($date_time))."</li>
+                            <li><strong>Nombre de passagers :</strong> $passengers</li>
+                            <li><strong>Type de transport :</strong> $transport_type</li>
+                            <li><strong>Prix estimé :</strong> ".number_format($prix_estime, 0, ',', ' ')." FCFA</li>
+                        </ul>
+                        ".(!empty($additional_info) ? "<p><strong>Informations supplémentaires :</strong> $additional_info</p>" : "")."
+                        <p>Merci d'avoir utilisé notre service.</p>
+                    ";
 
-        // var_dump($mail->Body);  Affiche le contenu du corps du message
-        $mail->send();
-        // echo "<script> alert('Reservation confirmimée : Un e-mail de confirmation a été envoyé. ') </script>";
-
-      } catch (exception $e) {
-        echo "<script> alert('Reservation confirmimée : mai l\'envoi de l\'e-mail a échoué : {$mail->ErrorInfo}') </script>";
-      }
-      
-      ?>
-      <!-- Optional JavaScript -->
-                    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-                    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-                    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-                    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-                  </body>
-                </html>
-
- <?php }
-        
-        
-    } else {
-        echo "Mercie de vous connecter avant de faire votre réservation";
-
-    } 
-                
+                    $mail->send();
+                } catch (Exception $e) {
+                    echo "<script>console.error('Erreur d'envoi d\'email: {$mail->ErrorInfo}')</script>";
+                }
+            }
+        } else {
+            header("Location: log/connexion.php?error=Merci de vous connecter avant de faire votre réservation");
+            exit();
+        }
+    } catch (PDOException $e) {
+        echo "<div class='container text-center py-5'>
+                <i class='fas fa-exclamation-circle fa-3x text-danger mb-3'></i>
+                <h3 class='mb-3'>Une erreur est survenue lors de la réservation</h3>
+                <p class='text-muted'>".htmlspecialchars($e->getMessage())."</p>
+                <a href='reservation.php' class='btn btn-primary'>Retour</a>
+              </div>";
+    }
+} else {
+    header("Location: reservation.php");
+    exit();
 }
-
 ?>

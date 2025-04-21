@@ -22,6 +22,7 @@ session_start();
                     $_SESSION["prenom"] = $_POST["prenom"]; 
                     $_SESSION["nom"] = $_POST["nom"]; 
                     $_SESSION["id_users"] = $user["id"];
+                    $_SESSION["role"] = $user["role"];
                     header("location: ../index.php"); 
                     exit();
                }else  
